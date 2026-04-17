@@ -7,8 +7,7 @@ const rateLimit = require('express-rate-limit');
 // Routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
-// const productRoutes = require('./routes/products');
-// const orderRoutes = require('./routes/orders');
+const projectRoutes = require('./routes/project');
 
 // Global Error Handler
 const globalErrorHandler = require('./middlewares/globalErrorHandler');
@@ -38,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
 
 // app.use('/api/products', productRoutes);
 // app.use('/api/orders', orderRoutes);
