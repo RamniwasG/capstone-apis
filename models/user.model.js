@@ -59,6 +59,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ['admin', 'member'],
             default: 'member'
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'active', 'suspended'],
+            default: 'pending'
         }
     },
     { timestamps: true }

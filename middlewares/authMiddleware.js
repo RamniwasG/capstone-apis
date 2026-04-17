@@ -4,7 +4,7 @@ require('dotenv').config();
 const secretKey = process.env.JWT_SECRET;
 
 // Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
+const isAuthenticated = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -46,7 +46,7 @@ const generateToken = (user) => {
 };
 
 module.exports = {
-    authenticateToken,
+    isAuthenticated,
     authorizeRole,
     generateToken,
 };

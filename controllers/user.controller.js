@@ -1,91 +1,92 @@
-const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
-const { generateToken } = require('../middlewares/authMiddleware');
+const AppError = require('../utils/AppError');
 
-const signup = async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
-        const { username, password, email, phone, role } = req.body;
-
-        // Validate required fields
-        if (!username || !password || !email || !phone) {
-            return res.status(400).json({ message: 'All fields are required' });
-        }
-
-        // Check if user already exists
-        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-        if (existingUser) {
-            return res.status(409).json({ message: 'Username or email already exists' });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create new user
-        const user = new User({
-            username,
-            password: hashedPassword,
-            email,
-            phone,
-            role: role || 'member'
-        });
-
-        await user.save();
-
-        return res.status(201).json({
-            message: 'User created successfully',
-            user: {
-                id: user._id,
-                username: user.username,
-                email: user.email,
-                phone: user.phone,
-                role: user.role
-            }
-        });
+        const users = await User.find({ role: { $ne: 'admin' } }).select('-password');
+        return res.status(200).json({ users });
     } catch (error) {
-        return res.status(500).json({ message: 'Server error', error: error.message });
+        throw new AppError(error.message || 'Internal Server Error', 500);
     }
 };
 
-const signin = async (req, res) => {
+// update user profile (username, email, phone) - only for the user themselves or admin
+const updateProfile = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { userId } = req.params;
+        const { username, email, phone } = req.body;
 
-        // Validate required fields
-        if (!username || !password) {
-            return res.status(400).json({ message: 'Username and password are required' });
-        }
-
-        // Find user by username or email
-        const user = await User.findOne({ $or: [{ username }, { email: username }] });
+        const user = await User.findById(userId);
         if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            throw new AppError('User not found', 404);
         }
 
-        // Compare passwords
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }  
+        if(req.user.role !== 'admin' && req.user._id.toString() !== userId) {
+            throw new AppError('You can only update your own profile', 403);
+        }
 
-        const token = generateToken(user)
+        if (username) user.username = username;
+        if (email) user.email = email;
+        if (phone) user.phone = phone;
+
+        await user.save();
 
         return res.status(200).json({
-            message: 'Login successful',
-            token,
+            message: 'User profile updated successfully',
             user: {
                 id: user._id,
                 username: user.username,
                 email: user.email,
                 phone: user.phone,
-                role: user.role
+                role: user.role,
+                status: user.status
             }
         });
     } catch (error) {
-        return res.status(500).json({ message: 'Server error', error: error.message });
+        throw new AppError(error.message || 'Internal Server Error', 500);
+    }
+}
+
+// admin can update user status to active, pending, or suspended
+const updateStatusByAdmin = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { status } = req.body;
+
+        if (!['pending', 'active', 'suspended'].includes(status)) {
+            throw new AppError('Invalid status value', 400);
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new AppError('User not found', 404);
+        }
+
+        if(req.user.role !== 'admin') {
+            throw new AppError('Only admins can update user status', 403);
+        }
+
+        user.status = status;
+        await user.save();
+
+        return res.status(200).json({
+            message: 'User status updated successfully',
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                status: user.status
+            }
+        });
+    } catch (error) {
+        throw new AppError(error.message || 'Internal Server Error', 500);
     }
 };
 
 module.exports = {
-    signup,
-    signin
+    getAllUsers,
+    updateProfile,
+    updateStatusByAdmin
 };
