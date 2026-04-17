@@ -24,12 +24,15 @@ app.use(morgan('dev'));
 
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 50, // limit each IP to 50 requests per windowMs
+    max: 100, // limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again later.'
 }));
 
-require('dotenv').config();
-const PORT = process.env.PORT || 3000;
+require('dotenv').config({
+    quiet: true,
+    path: `.env.${process.env.NODE_ENV || 'development'}`
+});
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
