@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.get('/', userController.getAllUsers);
 
+router.post('/emails-to-ids', isAuthenticated, authorizeRole('admin'), userController.getUserIdsByEmails);
+
 router.patch('/update/:userId/status', isAuthenticated, authorizeRole('admin'), userController.updateStatusByAdmin);
 
 router.patch('/update/:userId/profile', isAuthenticated, userController.updateProfile);

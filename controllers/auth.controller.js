@@ -70,7 +70,7 @@ const signin = async (req, res) => {
 
         // only allow active users to login
         if(user.status !== 'active') {
-            throw new AppError(`User account is ${user.status}`, 403);
+            throw new AppError(`User account is not activated yet, Please check with admin`, 403);
         }
 
         // Compare passwords

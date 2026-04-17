@@ -85,8 +85,28 @@ const updateStatusByAdmin = async (req, res) => {
     }
 };
 
+// get user ids for multiple email addresses (used for task assignment)
+const getUserIdsByEmails = async (req, res) => {
+    try {
+        const { emails } = req.body;
+        const users = await User.find({ email: { $in: emails } });
+        if(!users || users.length === 0) {
+            throw new AppError('No users found for the provided email addresses', 404);
+        }
+        if(`${users.length}` !== `${emails.length}`) {
+            const foundEmails = users.map(user => user.email);
+            const notFoundEmails = emails.filter(email => !foundEmails.includes(email));
+            throw new AppError(`Users with following emails not found: ${notFoundEmails.join(', ')}`, 404);
+        }
+        return res.status(200).json({ userIds: users.map(user => user._id) });
+    } catch (error) {
+        throw new AppError(error.message || 'Internal Server Error', 500);
+    }
+};
+
 module.exports = {
     getAllUsers,
     updateProfile,
-    updateStatusByAdmin
+    updateStatusByAdmin,
+    getUserIdsByEmails
 };
