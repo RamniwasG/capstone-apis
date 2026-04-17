@@ -117,10 +117,26 @@ const updateTaskStatus = async (req, res) => {
     }
 }
 
+const deleteTask = async (req, res) => {
+    try {
+        const { taskId } = req.params;
+
+        const task = await Task.findByIdAndDelete(taskId);
+        if (!task) {
+            throw new AppError('Task not found', 404);
+        }
+
+        return res.status(200).json({ message: 'Task deleted successfully' });
+    } catch (error) {
+        throw new AppError(error.message || 'Internal Server Error', 500);
+    }
+}
+
 module.exports = {
     getAllTasks,
     getProjectTasks,
     createTask,
     assignTask,
-    updateTaskStatus
+    updateTaskStatus,
+    deleteTask
 };

@@ -14,5 +14,7 @@ router.patch('/assign/:taskId', isAuthenticated, authorizeRole('admin', 'member'
 
 router.patch('/status/:taskId', isAuthenticated, authorizeRole('admin', 'member'), taskController.updateTaskStatus);
 
+router.delete('/delete/:taskId', isAuthenticated, authorizeRole('admin'), taskController.deleteTask);
+
 module.exports = router;
 
