@@ -145,7 +145,7 @@ const assignMembers = async (req, res) => {
         await project.save();
 
         return res.status(200).json({
-            message: 'Members assigned successfully',
+            message: `Member${memberIds.length > 1 ? 's' : ''} assigned successfully`,
             project: {
                 id: project._id,
                 name: project.name,
@@ -180,7 +180,7 @@ const removeMembers = async (req, res) => {
         await project.save();
 
         return res.status(200).json({
-            message: 'Members removed successfully',
+            message: `Member${project.members.length < memberIds.length ? 's' : ''} removed successfully`,
             project: {
                 id: project._id,
                 name: project.name,

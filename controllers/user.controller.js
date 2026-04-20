@@ -89,9 +89,10 @@ const updateStatusByAdmin = async (req, res) => {
 const getUserIdsByEmails = async (req, res) => {
     try {
         const { emails } = req.body;
+        console.log('Received emails for user ID retrieval:', emails);
         const users = await User.find({ email: { $in: emails } });
         if(!users || users.length === 0) {
-            throw new AppError('No users found for the provided email addresses', 404);
+            throw new AppError('members email not found!, please provide active and valid emails', 404);
         }
         if(`${users.length}` !== `${emails.length}`) {
             const foundEmails = users.map(user => user.email);
