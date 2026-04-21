@@ -6,9 +6,11 @@ const router = express.Router();
 
 router.get('/getAll', isAuthenticated, authorizeRole('admin'), taskController.getAllTasks);
 
-router.get('/project/:projectId', isAuthenticated, authorizeRole('admin', 'member'), taskController.getProjectTasks);
+router.get('/:projectId', isAuthenticated, authorizeRole('admin', 'member'), taskController.getProjectTasks);
 
-router.post('/create', isAuthenticated, authorizeRole('admin', 'member'), taskController.createTask);
+router.post('/:projectId/create', isAuthenticated, authorizeRole('admin', 'member'), taskController.createTask);
+
+router.put('/:projectId/update/:taskId', isAuthenticated, authorizeRole('admin', 'member'), taskController.updateTask);
 
 router.patch('/assign/:taskId', isAuthenticated, authorizeRole('admin', 'member'), taskController.assignTask);
 

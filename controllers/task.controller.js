@@ -22,7 +22,8 @@ const getProjectTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
     try {
-        const { title, description, projectId, assignedTo } = req.body;
+        const { projectId } = req.params;
+        const { title, description, assignedTo, priority } = req.body;
 
         // Check if task with the same title already exists in the project
         const existingTask = await Task.findOne({ title, projectId });
@@ -33,6 +34,7 @@ const createTask = async (req, res) => {
         const task = new Task({
             title,
             description,
+            priority,
             projectId,
             assignedTo
         });
@@ -46,6 +48,47 @@ const createTask = async (req, res) => {
                 title: task.title,
                 description: task.description,
                 status: task.status,
+                priority: task.priority,
+                projectId: task.projectId,
+                assignedTo: task.assignedTo
+            }
+        });
+    } catch (error) {
+        throw new AppError(error.message || 'Internal Server Error', 500);
+    }
+}
+
+const updateTask = async (req, res) => {
+    try {
+        const { projectId, taskId } = req.params;
+        const { title, description, priority } = req.body;
+
+        const task = await Task.findOne({ _id: taskId, projectId });
+        if (!task) {
+            throw new AppError('Task not found in this project', 404);
+        }
+
+        if (title) {
+            // Check if another task with the same title exists in the project
+            const existingTask = await Task.findOne({ title, projectId, _id: { $ne: taskId } });
+            if (existingTask) {
+                throw new AppError('Another task with the same title already exists in this project', 409);
+            }
+            task.title = title;
+        }
+        if (description) task.description = description;
+        if (priority) task.priority = priority;
+
+        await task.save();
+
+        return res.status(200).json({
+            message: 'Task updated successfully',
+            task: {
+                id: task._id,
+                title: task.title,
+                description: task.description,
+                status: task.status,
+                priority: task.priority,
                 projectId: task.projectId,
                 assignedTo: task.assignedTo
             }
@@ -75,6 +118,7 @@ const assignTask = async (req, res) => {
                 title: task.title,
                 description: task.description,
                 status: task.status,
+                priority: task.priority,
                 projectId: task.projectId,
                 assignedTo: task.assignedTo
             }
@@ -108,6 +152,7 @@ const updateTaskStatus = async (req, res) => {
                 title: task.title,
                 description: task.description,
                 status: task.status,
+                priority: task.priority,
                 projectId: task.projectId,
                 assignedTo: task.assignedTo
             }
@@ -136,6 +181,7 @@ module.exports = {
     getAllTasks,
     getProjectTasks,
     createTask,
+    updateTask,
     assignTask,
     updateTaskStatus,
     deleteTask
