@@ -5,7 +5,7 @@ REST API for a simple team/project/task management system built with Node.js, Ex
 This backend supports:
 - user signup and signin
 - admin approval of members
-- project creation and member assignment
+- project creation/updates/deletion and member assignment
 - task creation, assignment, status updates, and deletion
 
 ## Tech Stack
@@ -695,16 +695,6 @@ curl -X POST http://localhost:5000/api/tasks/<PROJECT_ID>/create \
   }'
 ```
 
-## Current Implementation Notes
-
-These are worth knowing while testing:
-
-- JWT stores `id`, but some controllers use `req.user._id`. That may affect routes like member project lookup and self-profile update.
-- Most controller `catch` blocks wrap all errors as `500`, so some validation/authorization failures may return the right message with the wrong status code.
-- `GET /api/projects/getMemberProjects` is not restricted to members only; any authenticated user can call it.
-- Task create/update/assign routes allow both admin and member roles, but they do not currently verify whether the member belongs to that project.
-- `POST /api/users/emails-to-ids` checks email existence, but not whether those users are active.
-
 ## Recommended Testing Order
 
 1. Create admin
@@ -713,17 +703,7 @@ These are worth knowing while testing:
 4. Activate members
 5. Sign in as member
 6. Create project
-7. Convert member emails to IDs
-8. Add members to project
-9. Create tasks
-10. Assign or update tasks
-11. Move task status from `pending` to `in-progress` to `completed`
-
-## Future Improvements
-
-- add request validation middleware for all routes
-- preserve real HTTP status codes in controller error handling
-- enforce project membership checks on member task operations
-- add Swagger or OpenAPI documentation
-- add automated tests
-- add environment variable example file
+7. Add members to project
+8. Create tasks
+9. Assign or update tasks
+10. Move task status from `pending` to `in-progress` to `completed`
