@@ -29,11 +29,10 @@ const {
 } = process.env
 
 app.use(helmet());
-app.use(cors());
-// app.use(cors({
-//     origin: [CORS_ORIGIN],
-//     credentials: CORS_CREDENTIALS
-// }));
+app.use(cors({
+    origin: CORS_ORIGIN,
+    credentials: CORS_CREDENTIALS
+}));
 app.use(morgan('dev'));
 
 app.use(rateLimit({
@@ -51,9 +50,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
-
-// app.use('/api/products', productRoutes);
-// app.use('/api/orders', orderRoutes);
 
 // 404 Handler
 app.use((req, res) => {
