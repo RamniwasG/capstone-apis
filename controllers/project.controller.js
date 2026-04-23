@@ -12,7 +12,10 @@ const getAllProjects = async (req, res) => {
 
 const getMemberProjects = async (req, res) => {
     try {
-        const projects = await Project.find({ members: req.user._id }).populate('createdBy', 'username email -password').populate('members', 'username email -password');
+        const loggedInUserId = req.user.id;
+        const projects = await Project.find({ members: { $in: [loggedInUserId] } })
+            .populate('createdBy', 'username email -password')
+            .populate('members', 'username email -password');
         return res.status(200).json({ projects });
     } catch (error) {
         throw new AppError(error.message || 'Internal Server Error', 500);
