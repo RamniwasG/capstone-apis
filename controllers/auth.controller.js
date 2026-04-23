@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
 const { generateToken } = require('../middlewares/authMiddleware');
 const AppError = require('../utils/AppError');
-const validator = require('validator');
 const { validateSignupData, validateSigninData } = require('../utils/customValidator');
 
 const signup = async (req, res) => {
