@@ -61,7 +61,7 @@ const createTask = async (req, res) => {
 const updateTask = async (req, res) => {
     try {
         const { projectId, taskId } = req.params;
-        const { title, description, priority } = req.body;
+        const { title, description, priority, assignedTo } = req.body;
 
         const task = await Task.findOne({ _id: taskId, projectId });
         if (!task) {
@@ -78,6 +78,7 @@ const updateTask = async (req, res) => {
         }
         if (description) task.description = description;
         if (priority) task.priority = priority;
+        if (assignedTo) task.assignedTo = assignedTo;
 
         await task.save();
 

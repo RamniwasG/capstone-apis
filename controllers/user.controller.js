@@ -1,9 +1,9 @@
 const User = require('../models/user.model');
 const AppError = require('../utils/AppError');
 
-const getAllUsers = async (req, res) => {
+const getAllActiveMembers = async (req, res) => {
     try {
-        const users = await User.find({ role: { $ne: 'admin' } }).select('-password');
+        const users = await User.find({ role: { $ne: 'admin' }, status: 'active' }).select('-password');
         return res.status(200).json({ users });
     } catch (error) {
         throw new AppError(error.message || 'Internal Server Error', 500);
@@ -106,7 +106,7 @@ const getUserIdsByEmails = async (req, res) => {
 };
 
 module.exports = {
-    getAllUsers,
+    getAllActiveMembers,
     updateProfile,
     updateStatusByAdmin,
     getUserIdsByEmails
