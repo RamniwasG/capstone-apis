@@ -29,10 +29,7 @@ const {
 } = process.env
 
 app.use(helmet());
-app.use(cors({
-    origin: CORS_ORIGIN,
-    credentials: CORS_CREDENTIALS
-}));
+app.use(cors());
 app.use(morgan('dev'));
 
 app.use(rateLimit({
