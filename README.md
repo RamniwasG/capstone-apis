@@ -17,6 +17,10 @@ This backend supports:
 - bcrypt password hashing
 - Helmet, CORS, Morgan, and rate limiting
 
+## server live url to play with https://capstone-apis-0x24.onrender.com/api
+
+## frontend live url to play with: https://capstone-app-wq6c.onrender.com
+
 ## Project Structure
 
 ```text
