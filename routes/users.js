@@ -4,7 +4,7 @@ const userController = require('../controllers/user.controller');
 
 const router = express.Router();
 
-router.get('/active-members', isAuthenticated, authorizeRole('admin'), userController.getAllActiveMembers);
+router.get('/all-members', isAuthenticated, authorizeRole('admin'), userController.getAllMembers);
 
 router.post('/emails-to-ids', isAuthenticated, authorizeRole('admin'), userController.getUserIdsByEmails);
 
