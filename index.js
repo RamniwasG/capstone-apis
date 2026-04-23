@@ -15,24 +15,31 @@ const globalErrorHandler = require('./middlewares/globalErrorHandler');
 
 const app = express();
 
-app.use(helmet());
-app.use(cors({
-    origin: ['http://localhost:3000'],
-    credentials: true
-}));
-app.use(morgan('dev'));
-
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.'
-}));
-
 require('dotenv').config({
     quiet: true,
     path: `.env.${process.env.NODE_ENV || 'development'}`
 });
-const PORT = process.env.PORT || 5000;
+
+const {
+    PORT=5000,
+    CORS_ORIGIN,
+    CORS_CREDENTIALS,
+    RATE_LIMIT_WINDOW_MS,
+    MAX_REQUEST_PER_IP,
+} = process.env
+
+app.use(helmet());
+app.use(cors({
+    origin: [CORS_ORIGIN],
+    credentials: CORS_CREDENTIALS
+}));
+app.use(morgan('dev'));
+
+app.use(rateLimit({
+    windowMs: RATE_LIMIT_WINDOW_MS, // 15 minutes
+    max: MAX_REQUEST_PER_IP, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.'
+}));
 
 // Middleware
 app.use(express.json());
