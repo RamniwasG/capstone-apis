@@ -10,6 +10,6 @@ router.post('/emails-to-ids', isAuthenticated, authorizeRole('admin'), userContr
 
 router.patch('/update/:userId/status', isAuthenticated, authorizeRole('admin'), userController.updateStatusByAdmin);
 
-router.patch('/update/:userId/profile', isAuthenticated, userController.updateProfile);
+router.put('/update/:userId/profile', isAuthenticated, authorizeRole('admin', 'member'), userController.updateProfile);
 
 module.exports = router;

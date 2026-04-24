@@ -14,7 +14,7 @@ const getAllMembers = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const { userId } = req.params;
-        const { username, email, phone } = req.body;
+        const { username, phone } = req.body;
 
         const user = await User.findById(userId);
         if (!user) {
@@ -26,7 +26,6 @@ const updateProfile = async (req, res) => {
         }
 
         if (username) user.username = username;
-        if (email) user.email = email;
         if (phone) user.phone = phone;
 
         await user.save();
