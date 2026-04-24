@@ -14,10 +14,11 @@ const taskRoutes = require('./routes/task');
 const globalErrorHandler = require('./middlewares/globalErrorHandler');
 
 const app = express();
+const env = process.env.NODE_ENV || 'development';
 
 require('dotenv').config({
     quiet: true,
-    path: `.env.${process.env.NODE_ENV || 'development'}`
+    path: env === "production" ? ".env.production" : ".env"
 });
 
 const {
