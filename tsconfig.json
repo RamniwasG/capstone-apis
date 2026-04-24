@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "rootDir": ".",
+    "outDir": "dist-ts",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "ignoreDeprecations": "6.0",
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["node"]
+  },
+  "include": [
+    "ts-index.ts",
+    "ts-config/**/*.ts",
+    "ts-controllers/**/*.ts",
+    "ts-middlewares/**/*.ts",
+    "ts-models/**/*.ts",
+    "ts-routes/**/*.ts",
+    "ts-types/**/*.ts",
+    "ts-types/**/*.d.ts",
+    "ts-utils/**/*.ts"
+  ]
+}

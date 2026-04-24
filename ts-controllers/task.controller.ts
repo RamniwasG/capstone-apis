@@ -1,0 +1,205 @@
+import { Request, Response } from 'express';
+import Task from '../ts-models/task.model';
+import AppError from '../ts-utils/AppError';
+
+const getAllTasks = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const tasks = await Task.find().populate('projectId', 'name').populate('assignedTo', 'username email -password');
+        return res.status(200).json({ tasks });
+    } catch (error) {
+        const appError = error as Error;
+        throw new AppError(appError.message || 'Internal Server Error', 500);
+    }
+};
+
+const getProjectTasks = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { projectId } = req.params;
+        const tasks = await Task.find({ projectId }).populate('projectId', 'name').populate('assignedTo', 'username email -password');
+        return res.status(200).json({ tasks });
+    } catch (error) {
+        const appError = error as Error;
+        throw new AppError(appError.message || 'Internal Server Error', 500);
+    }
+};
+
+const createTask = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { projectId } = req.params;
+        const { title, description, assignedTo, priority } = req.body as {
+            title: string;
+            description?: string;
+            assignedTo?: string;
+            priority?: 'low' | 'medium' | 'high';
+        };
+
+        const existingTask = await Task.findOne({ title, projectId });
+        if (existingTask) {
+            throw new AppError('Task title already exists in this project', 409);
+        }
+
+        const task = new Task({
+            title,
+            description,
+            priority,
+            projectId,
+            assignedTo
+        });
+
+        await task.save();
+
+        return res.status(201).json({
+            message: 'Task created successfully',
+            task: {
+                id: task._id,
+                title: task.title,
+                description: task.description,
+                status: task.status,
+                priority: task.priority,
+                projectId: task.projectId,
+                assignedTo: task.assignedTo
+            }
+        });
+    } catch (error) {
+        const appError = error as Error;
+        throw new AppError(appError.message || 'Internal Server Error', 500);
+    }
+};
+
+const updateTask = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { projectId, taskId } = req.params;
+        const { title, description, priority, assignedTo } = req.body as {
+            title?: string;
+            description?: string;
+            priority?: 'low' | 'medium' | 'high';
+            assignedTo?: string;
+        };
+
+        const task = await Task.findOne({ _id: taskId, projectId });
+        if (!task) {
+            throw new AppError('Task not found in this project', 404);
+        }
+
+        if (title) {
+            const existingTask = await Task.findOne({ title, projectId, _id: { $ne: taskId } });
+            if (existingTask) {
+                throw new AppError('Another task with the same title already exists in this project', 409);
+            }
+            task.title = title;
+        }
+        if (description) task.description = description;
+        if (priority) task.priority = priority;
+        if (assignedTo) task.assignedTo = assignedTo as never;
+
+        await task.save();
+
+        return res.status(200).json({
+            message: 'Task updated successfully',
+            task: {
+                id: task._id,
+                title: task.title,
+                description: task.description,
+                status: task.status,
+                priority: task.priority,
+                projectId: task.projectId,
+                assignedTo: task.assignedTo
+            }
+        });
+    } catch (error) {
+        const appError = error as Error;
+        throw new AppError(appError.message || 'Internal Server Error', 500);
+    }
+};
+
+const assignTask = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { taskId } = req.params;
+        const { assignedTo } = req.body as { assignedTo?: string };
+
+        const task = await Task.findById(taskId);
+        if (!task) {
+            throw new AppError('Task not found', 404);
+        }
+
+        task.assignedTo = assignedTo as never;
+        await task.save();
+
+        return res.status(200).json({
+            message: 'Task assigned successfully',
+            task: {
+                id: task._id,
+                title: task.title,
+                description: task.description,
+                status: task.status,
+                priority: task.priority,
+                projectId: task.projectId,
+                assignedTo: task.assignedTo
+            }
+        });
+    } catch (error) {
+        const appError = error as Error;
+        throw new AppError(appError.message || 'Internal Server Error', 500);
+    }
+};
+
+const updateTaskStatus = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { taskId } = req.params;
+        const { status } = req.body as { status: 'pending' | 'in-progress' | 'completed' };
+
+        if (!['pending', 'in-progress', 'completed'].includes(status)) {
+            throw new AppError('Invalid status value', 400);
+        }
+
+        const task = await Task.findById(taskId);
+        if (!task) {
+            throw new AppError('Task not found', 404);
+        }
+
+        task.status = status;
+        await task.save();
+
+        return res.status(200).json({
+            message: 'Task status updated successfully',
+            task: {
+                id: task._id,
+                title: task.title,
+                description: task.description,
+                status: task.status,
+                priority: task.priority,
+                projectId: task.projectId,
+                assignedTo: task.assignedTo
+            }
+        });
+    } catch (error) {
+        const appError = error as Error;
+        throw new AppError(appError.message || 'Internal Server Error', 500);
+    }
+};
+
+const deleteTask = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { taskId } = req.params;
+
+        const task = await Task.findByIdAndDelete(taskId);
+        if (!task) {
+            throw new AppError('Task not found', 404);
+        }
+
+        return res.status(200).json({ message: 'Task deleted successfully' });
+    } catch (error) {
+        const appError = error as Error;
+        throw new AppError(appError.message || 'Internal Server Error', 500);
+    }
+};
+
+export {
+    getAllTasks,
+    getProjectTasks,
+    createTask,
+    updateTask,
+    assignTask,
+    updateTaskStatus,
+    deleteTask
+};
