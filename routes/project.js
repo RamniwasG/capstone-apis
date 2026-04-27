@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/getAll', isAuthenticated, authorizeRole('admin'), projectController.getAllProjects);
 
-router.get('/getMemberProjects', isAuthenticated, projectController.getMemberProjects);
+router.get('/getMemberProjects', isAuthenticated, authorizeRole('admin', 'member'), projectController.getMemberProjects);
 
 router.post('/create', isAuthenticated, authorizeRole('admin'), projectController.createProject);
 
