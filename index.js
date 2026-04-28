@@ -34,7 +34,7 @@ app.use(cors());
 app.use(morgan('dev'));
 
 app.use(rateLimit({
-    windowMs: RATE_LIMIT_WINDOW_MS, // 15 minutes
+    windowMs: parseInt(RATE_LIMIT_WINDOW_MS), // 15 minutes
     max: MAX_REQUEST_PER_IP, // limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again later.'
 }));
